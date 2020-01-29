@@ -13,6 +13,7 @@ using Xunit.Abstractions;
 
 namespace System.Net.Sockets.Tests
 {
+    [Trait("FlakyUDP", "true")]
     [Collection(nameof(NoParallelTests))]
     public abstract class SendReceiveUdp<T> : SocketTestHelperBase<T> where T : SocketHelperBase, new()
     {
@@ -20,11 +21,25 @@ namespace System.Net.Sockets.Tests
         {
         }
 
+        public static readonly TheoryData<IPAddress, int> SendToRecvFrom_Datagram_UDP_Data = new TheoryData<IPAddress, int>()
+        {
+            { IPAddress.Loopback, 0 },
+            { IPAddress.IPv6Loopback, 1 },
+            { IPAddress.Loopback, 2 },
+            { IPAddress.IPv6Loopback, 3 },
+            { IPAddress.Loopback, 4 },
+            { IPAddress.IPv6Loopback, 5 },
+            { IPAddress.Loopback, 6 },
+            { IPAddress.IPv6Loopback, 7 },
+        };
+
         [OuterLoop]
         [Theory]
-        [MemberData(nameof(Loopbacks))]
-        public async Task SendToRecvFrom_Datagram_UDP(IPAddress loopbackAddress)
+        [MemberData(nameof(SendToRecvFrom_Datagram_UDP_Data))]
+        public async Task SendToRecvFrom_Datagram_UDP(IPAddress loopbackAddress, int dummy)
         {
+            _output.WriteLine($"round {dummy}");
+
             IPAddress leftAddress = loopbackAddress, rightAddress = loopbackAddress;
 
             const int DatagramSize = 256;
